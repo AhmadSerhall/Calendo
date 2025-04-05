@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // ✅ Import this to use SVGs
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -41,9 +42,7 @@ class _LoginScreenState extends State<LoginScreen>
           labelText: label,
           filled: true,
           fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           focusedBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: Color(0xFF2697FF), width: 2),
             borderRadius: BorderRadius.circular(12),
@@ -90,27 +89,36 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
                   const SizedBox(height: 30),
+
+                  // ✅ SVG Image
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: Image.asset(
-                      'assets/images/login.png',
+                    child: SvgPicture.asset(
+                      'assets/svg/login1.svg', // ✅ SVG loaded properly
                       fit: BoxFit.cover,
                       height: 310,
                       width: double.infinity,
                     ),
                   ),
+
                   const SizedBox(height: 30),
                   Form(
                     key: _formKey,
                     child: Column(
                       children: [
                         buildTextField(
-                            "Email", false, TextInputType.emailAddress),
+                          "Email",
+                          false,
+                          TextInputType.emailAddress,
+                        ),
                         buildTextField(
-                            "Password", true, TextInputType.visiblePassword),
+                          "Password",
+                          true,
+                          TextInputType.visiblePassword,
+                        ),
                         const SizedBox(height: 30),
                         SizedBox(
                           width: double.infinity,
@@ -124,23 +132,25 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
-                                // TODO: Handle login logic
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                      content: Text("Logging in...")),
+                                    content: Text("Logging in..."),
+                                  ),
                                 );
                               }
                             },
                             child: const Text(
                               "Log In",
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white),
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
                         const SizedBox(height: 20),
 
-                        // 🔁 Already have an account?
+                        // 🔁 Sign up link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -163,10 +173,10 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

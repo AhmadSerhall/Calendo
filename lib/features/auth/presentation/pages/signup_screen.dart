@@ -41,8 +41,12 @@ class _SignUpScreenState extends State<SignUpScreen>
     super.dispose();
   }
 
-  Widget buildTextField(String label, bool isPassword, TextInputType type,
-      TextEditingController controller) {
+  Widget buildTextField(
+    String label,
+    bool isPassword,
+    TextInputType type,
+    TextEditingController controller,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: TextFormField(
@@ -53,9 +57,7 @@ class _SignUpScreenState extends State<SignUpScreen>
           labelText: label,
           filled: true,
           fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           focusedBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: Color(0xFF2697FF), width: 2),
             borderRadius: BorderRadius.circular(12),
@@ -100,9 +102,9 @@ class _SignUpScreenState extends State<SignUpScreen>
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: Image.asset(
-                      'assets/images/signup.png',
+                      'assets/svg/signup.webp',
                       fit: BoxFit.cover,
-                      height: 310,
+                      height: 350,
                       width: double.infinity,
                     ),
                   ),
@@ -111,12 +113,24 @@ class _SignUpScreenState extends State<SignUpScreen>
                     key: _formKey,
                     child: Column(
                       children: [
-                        buildTextField("Full Name", false, TextInputType.name,
-                            _nameController),
-                        buildTextField("Email", false,
-                            TextInputType.emailAddress, _emailController),
-                        buildTextField("Password", true,
-                            TextInputType.visiblePassword, _passwordController),
+                        buildTextField(
+                          "Full Name",
+                          false,
+                          TextInputType.name,
+                          _nameController,
+                        ),
+                        buildTextField(
+                          "Email",
+                          false,
+                          TextInputType.emailAddress,
+                          _emailController,
+                        ),
+                        buildTextField(
+                          "Password",
+                          true,
+                          TextInputType.visiblePassword,
+                          _passwordController,
+                        ),
                         const SizedBox(height: 30),
 
                         // 🔐 Firebase Sign Up
@@ -193,7 +207,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                               ),
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
