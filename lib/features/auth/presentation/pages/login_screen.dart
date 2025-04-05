@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // ✅ Import this to use SVGs
+import 'package:flutter_svg/flutter_svg.dart';
 import 'signup_screen.dart';
+import '../components/TextField/custom_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,6 +15,8 @@ class _LoginScreenState extends State<LoginScreen>
   late AnimationController _controller;
   late Animation<double> _fadeIn;
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -29,33 +32,9 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void dispose() {
     _controller.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
-  }
-
-  Widget buildTextField(String label, bool isPassword, TextInputType type) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: TextFormField(
-        obscureText: isPassword,
-        keyboardType: type,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Color(0xFF2697FF), width: 2),
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return '$label is required';
-          }
-          return null;
-        },
-      ),
-    );
   }
 
   @override
@@ -89,35 +68,34 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
                   const SizedBox(height: 30),
-
-                  // ✅ SVG Image
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: SvgPicture.asset(
-                      'assets/svg/login1.svg', // ✅ SVG loaded properly
+                      'assets/svg/login1.svg',
                       fit: BoxFit.cover,
                       height: 310,
                       width: double.infinity,
                     ),
                   ),
-
                   const SizedBox(height: 30),
                   Form(
                     key: _formKey,
                     child: Column(
                       children: [
-                        buildTextField(
-                          "Email",
-                          false,
-                          TextInputType.emailAddress,
+                        CustomTextField(
+                          label: "Email",
+                          isPassword: false,
+                          inputType: TextInputType.emailAddress,
+                          controller: _emailController,
                         ),
-                        buildTextField(
-                          "Password",
-                          true,
-                          TextInputType.visiblePassword,
+                        CustomTextField(
+                          label: "Password",
+                          isPassword: true,
+                          inputType: TextInputType.visiblePassword,
+                          controller: _passwordController,
                         ),
                         const SizedBox(height: 30),
                         SizedBox(
@@ -149,8 +127,6 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                         ),
                         const SizedBox(height: 20),
-
-                        // 🔁 Sign up link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
