@@ -4,7 +4,7 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: "^3.7.0" # ✅ Updated to resolve warning
+  sdk: "^3.7.0"
 
 dependencies:
   flutter:
@@ -12,7 +12,7 @@ dependencies:
   intl: ^0.20.1
   table_calendar: ^3.0.9
 
-  # ✅ Firebase packages removed
+  # Firebase
   # firebase_core: ^2.25.4
   # firebase_auth: ^4.16.0
 
