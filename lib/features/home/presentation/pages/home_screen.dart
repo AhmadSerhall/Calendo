@@ -9,199 +9,194 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final ValueNotifier<List<String>> _selectedEvents;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
-  final Map<DateTime, List<String>> _events = {
-    DateTime.utc(2025, 4, 5): [
-      'Design new UX flow for Michael',
-      'Brainstorm with the team',
-      'Workout with Ella',
+  final Map<DateTime, List<Map<String, String>>> _events = {
+    DateTime(2025, 4, 5): [
+      {
+        "time": "10:00-13:00",
+        "title": "Design new UX flow for Michael",
+        "description": "Start from screen 16",
+        "color": "green",
+      },
+      {
+        "time": "14:00-15:00",
+        "title": "Brainstorm with the team",
+        "description": "Define the problem or question that...",
+        "color": "purple",
+      },
+      {
+        "time": "19:00-20:00",
+        "title": "Workout with Ella",
+        "description": "We will do the legs and back workout",
+        "color": "blue",
+      },
     ],
   };
 
-  @override
-  void initState() {
-    super.initState();
-    _selectedDay = _focusedDay;
-    _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
-  }
-
-  List<String> _getEventsForDay(DateTime day) {
-    return _events[DateTime.utc(day.year, day.month, day.day)] ?? [];
-  }
-
-  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    setState(() {
-      _selectedDay = selectedDay;
-      _focusedDay = focusedDay;
-    });
-    _selectedEvents.value = _getEventsForDay(selectedDay);
-  }
-
-  void _showEventOptions(String title) {
-    showModalBottomSheet(
-      context: context,
-      builder:
-          (_) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text('Edit'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Implement edit
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete),
-                title: const Text('Delete'),
-                onTap: () {
-                  setState(() {
-                    _events[_selectedDay!]!.remove(title);
-                    _selectedEvents.value = _getEventsForDay(_selectedDay!);
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _selectedEvents.dispose();
-    super.dispose();
+  List<Map<String, String>> _getEventsForDay(DateTime day) {
+    return _events[DateTime(day.year, day.month, day.day)] ?? [];
   }
 
   @override
   Widget build(BuildContext context) {
+    final selectedEvents = _getEventsForDay(_selectedDay ?? _focusedDay);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: Colors.white,
       body: Column(
         children: [
-          TableCalendar<String>(
+          TableCalendar(
             firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2030, 12, 31),
             focusedDay: _focusedDay,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            onDaySelected: _onDaySelected,
+            calendarFormat: CalendarFormat.month,
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDay, day);
+            },
             eventLoader: _getEventsForDay,
-            calendarStyle: const CalendarStyle(
-              todayDecoration: BoxDecoration(
-                color: Colors.grey,
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
+            },
+            calendarStyle: CalendarStyle(
+              todayDecoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.transparent,
+              ),
+              selectedDecoration: const BoxDecoration(
+                color: Color(0xFF7B61FF),
                 shape: BoxShape.circle,
               ),
-              selectedDecoration: BoxDecoration(
-                color: Colors.deepPurple,
-                shape: BoxShape.circle,
-              ),
-              markerDecoration: BoxDecoration(
-                color: Colors.green,
-                shape: BoxShape.circle,
-              ),
+              markerDecoration: BoxDecoration(shape: BoxShape.circle),
+              markersMaxCount: 3,
+              markersAlignment: Alignment.bottomCenter,
+              markerMargin: const EdgeInsets.only(bottom: 3),
+              markerSizeScale: 0.25,
             ),
-            headerStyle: const HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
+            calendarBuilders: CalendarBuilders(
+              markerBuilder: (context, date, events) {
+                final List<Color> colors = [];
+                final dayEvents = _getEventsForDay(date);
+                for (var event in dayEvents) {
+                  switch (event["color"]) {
+                    case "green":
+                      colors.add(Colors.green);
+                      break;
+                    case "purple":
+                      colors.add(Colors.purple);
+                      break;
+                    case "blue":
+                      colors.add(Colors.blue);
+                      break;
+                    default:
+                      colors.add(Colors.grey);
+                  }
+                }
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:
+                      colors.take(3).map((color) {
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 1),
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: color,
+                            shape: BoxShape.circle,
+                          ),
+                        );
+                      }).toList(),
+                );
+              },
             ),
           ),
-          const SizedBox(height: 10),
+          const Divider(height: 1),
           Expanded(
-            child: ValueListenableBuilder<List<String>>(
-              valueListenable: _selectedEvents,
-              builder:
-                  (context, events, _) => ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: events.length,
-                    itemBuilder: (context, index) {
-                      final title = events[index];
-                      final times = [
-                        "10:00–13:00",
-                        "14:00–15:00",
-                        "19:00–20:00",
-                      ];
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: selectedEvents.length,
+              itemBuilder: (context, index) {
+                final event = selectedEvents[index];
+                final color = event["color"];
+                final dotColor =
+                    color == "green"
+                        ? Colors.green
+                        : color == "purple"
+                        ? Colors.purple
+                        : Colors.blue;
 
-                      return Card(
-                        elevation: 3,
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          title: Text(
-                            title,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                            index == 0
-                                ? 'Start from screen 16'
-                                : index == 1
-                                ? 'Define the problem or question...'
-                                : 'We will do the legs and back workout',
-                          ),
-                          leading: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.circle,
-                                size: 12,
-                                color:
-                                    index == 0
-                                        ? Colors.green
-                                        : index == 1
-                                        ? Colors.purple
-                                        : Colors.blue,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                times[index],
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color:
-                                      index == 0
-                                          ? Colors.green
-                                          : index == 1
-                                          ? Colors.purple
-                                          : Colors.blue,
-                                ),
-                              ),
-                            ],
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.more_vert),
-                            onPressed: () => _showEventOptions(title),
-                          ),
-                        ),
-                      );
-                    },
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
+                  elevation: 2,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
+                    leading: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.circle, size: 12, color: dotColor),
+                        const SizedBox(height: 4),
+                        Text(event["time"]!, style: TextStyle(color: dotColor)),
+                      ],
+                    ),
+                    title: Text(
+                      event["title"]!,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(event["description"] ?? ""),
+                    trailing: PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == "edit") {
+                          // Handle edit
+                        } else if (value == "delete") {
+                          setState(() {
+                            _events[_selectedDay]!.removeAt(index);
+                          });
+                        }
+                      },
+                      itemBuilder:
+                          (context) => [
+                            const PopupMenuItem(
+                              value: "edit",
+                              child: Text("Edit"),
+                            ),
+                            const PopupMenuItem(
+                              value: "delete",
+                              child: Text("Delete"),
+                            ),
+                          ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
       ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
+        notchMargin: 8.0,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: const [
-            IconButton(icon: Icon(Icons.home), onPressed: null),
-            IconButton(icon: Icon(Icons.alarm), onPressed: null),
-            SizedBox(width: 48), // Space for FAB
-            IconButton(icon: Icon(Icons.notifications), onPressed: null),
-            IconButton(icon: Icon(Icons.person), onPressed: null),
+            Icon(Icons.home_outlined),
+            Icon(Icons.access_alarm_outlined),
+            SizedBox(width: 48),
+            Icon(Icons.notifications_none),
+            Icon(Icons.person_outline),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add new event logic here
-        },
-        shape: const CircleBorder(),
-        backgroundColor: Colors.deepPurple,
-        child: const Icon(Icons.add, size: 30),
+        onPressed: () {},
+        backgroundColor: const Color(0xFF7B61FF),
+        child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
