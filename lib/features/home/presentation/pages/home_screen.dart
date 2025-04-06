@@ -1,3 +1,4 @@
+import 'package:admin/features/home/presentation/components/add_event.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -12,6 +13,7 @@ class _HomeScreenState extends State<HomeScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
+  // For the example events
   final Map<DateTime, List<Map<String, String>>> _events = {
     DateTime(2025, 4, 5): [
       {
@@ -39,6 +41,23 @@ class _HomeScreenState extends State<HomeScreen> {
     return _events[DateTime(day.year, day.month, day.day)] ?? [];
   }
 
+  // This function shows the bottom sheet
+  void _showAddEventBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // so it can go full screen if needed
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+      ),
+      builder: (context) {
+        return const AddEventSheet();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedEvents = _getEventsForDay(_selectedDay ?? _focusedDay);
@@ -52,9 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
             lastDay: DateTime.utc(2030, 12, 31),
             focusedDay: _focusedDay,
             calendarFormat: CalendarFormat.month,
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
             eventLoader: _getEventsForDay,
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {
@@ -71,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Color(0xFF7B61FF),
                 shape: BoxShape.circle,
               ),
-              markerDecoration: BoxDecoration(shape: BoxShape.circle),
+              markerDecoration: const BoxDecoration(shape: BoxShape.circle),
               markersMaxCount: 3,
               markersAlignment: Alignment.bottomCenter,
               markerMargin: const EdgeInsets.only(bottom: 3),
@@ -161,12 +178,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
                       },
                       itemBuilder:
-                          (context) => [
-                            const PopupMenuItem(
-                              value: "edit",
-                              child: Text("Edit"),
-                            ),
-                            const PopupMenuItem(
+                          (context) => const [
+                            PopupMenuItem(value: "edit", child: Text("Edit")),
+                            PopupMenuItem(
                               value: "delete",
                               child: Text("Delete"),
                             ),
@@ -194,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: _showAddEventBottomSheet,
         backgroundColor: const Color(0xFF7B61FF),
         child: const Icon(Icons.add),
       ),
