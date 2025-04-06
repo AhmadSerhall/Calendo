@@ -1,14 +1,17 @@
 import 'package:admin/app/data.dart';
+import 'package:admin/app/responsive.dart';
+import 'package:admin/core/constants/constraints.dart';
+import 'package:admin/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flexify/flexify.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
-
-// Import splash screen
-import 'package:admin/features/auth/presentation/pages/splash_screen.dart'; // Adjust if needed
+import 'package:admin/features/auth/presentation/pages/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const ProviderScope(child: AppRunner()));
 }
 
@@ -30,44 +33,24 @@ class _AppRunnerState extends ConsumerState<AppRunner> {
 
   @override
   Widget build(BuildContext context) {
-    return Sizer(builder: (context, orientation, deviceType) {
-      return Flexify(
-        designWidth: 100.w,
-        designHeight: 100.h,
-        app: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Calendar App',
-          themeMode: ThemeMode.system,
-          theme: ThemeData.light().copyWith(
-            scaffoldBackgroundColor: const Color(0XFFF4F4F4),
-            appBarTheme: const AppBarTheme(backgroundColor: Color(0XFFF4F4F4)),
-            textTheme: ThemeData.light().textTheme.apply(
-                  bodyColor: const Color(0xFF2A2D3E),
-                ),
-            canvasColor: Colors.white,
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF2697FF),
-              secondary: Colors.white,
-              surface: Color(0XFFF4F4F4),
-              inversePrimary: Color(0xFF2A2D3E),
-            ),
+    return Sizer(
+      builder: (context, orientation, deviceType) {
+        if (!isConstraintsInitialized) {
+          bottomSafeArea = MediaQuery.of(context).padding.bottom;
+          topSafeArea = MediaQuery.of(context).padding.top;
+          isTablet = Responsive.isTablet(context);
+          isConstraintsInitialized = true;
+        }
+        return Flexify(
+          designWidth: 100.w,
+          designHeight: 100.h,
+          app: const MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Calendar App',
+            home: SplashScreen(),
           ),
-          darkTheme: ThemeData.dark().copyWith(
-            scaffoldBackgroundColor: const Color(0xFF212332),
-            appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF212332)),
-            textTheme:
-                ThemeData.dark().textTheme.apply(bodyColor: Colors.white),
-            canvasColor: const Color(0xFF2A2D3E),
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFF2697FF),
-              secondary: Color(0xFF2A2D3E),
-              surface: Color(0xFF212332),
-              inversePrimary: Colors.white,
-            ),
-          ),
-          home: const SplashScreen(),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }

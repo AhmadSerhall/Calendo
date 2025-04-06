@@ -1,5 +1,12 @@
+import 'package:admin/core/constants/colors.dart';
+import 'package:admin/core/constants/constraints.dart';
+import 'package:admin/core/constants/text_styles.dart';
+import 'package:admin/core/keyboard/dismiss.dart';
 import 'package:admin/features/auth/presentation/components/custom_text_field.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:sizer/sizer.dart';
 import 'login_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -44,113 +51,116 @@ class _SignUpScreenState extends State<SignUpScreen>
     return FadeTransition(
       opacity: _fadeIn,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF4F4F4),
+        backgroundColor: backgroundColor,
+        appBar: AppBar(
+          backgroundColor: backgroundColor,
+          title: Text(
+            "Create an Account",
+            style: headline1.copyWith(fontWeight: FontWeight.w700),
+          ),
+          centerTitle: true,
+        ),
         body: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
+          onTap: () => dismissKeyboard(context),
           child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: defaultPadding),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text(
-                    "Create Account",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Image.asset(
-                      'assets/svg/signup.webp',
-                      fit: BoxFit.cover,
-                      height: 350,
-                      width: double.infinity,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        CustomTextField(
-                          label: "Full Name",
-                          isPassword: false,
-                          inputType: TextInputType.name,
-                          controller: _nameController,
-                        ),
-                        CustomTextField(
-                          label: "Email",
-                          isPassword: false,
-                          inputType: TextInputType.emailAddress,
-                          controller: _emailController,
-                        ),
-                        CustomTextField(
-                          label: "Password",
-                          isPassword: true,
-                          inputType: TextInputType.visiblePassword,
-                          controller: _passwordController,
-                        ),
-                        const SizedBox(height: 30),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2697FF),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                  Column(
+                    children: [
+                      const SizedBox(height: 50),
+                      SvgPicture.asset(
+                        'assets/svg/login.svg',
+                        fit: BoxFit.cover,
+                        width: 75.w,
+                      ),
+                      const SizedBox(height: 30),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            CustomTextField(
+                              label: "Full Name",
+                              isPassword: false,
+                              inputType: TextInputType.name,
+                              controller: _nameController,
                             ),
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Sign-up successful!"),
-                                  ),
-                                );
-                              }
-                            },
-                            child: const Text(
-                              "Sign Up",
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                              ),
+                            CustomTextField(
+                              label: "Email",
+                              isPassword: false,
+                              inputType: TextInputType.emailAddress,
+                              controller: _emailController,
+                            ),
+                            CustomTextField(
+                              label: "Password",
+                              isPassword: true,
+                              inputType: TextInputType.visiblePassword,
+                              controller: _passwordController,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Already have an account? "),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const LoginScreen(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          "Log in",
-                          style: TextStyle(
-                            color: Color(0xFF2697FF),
-                            fontWeight: FontWeight.bold,
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Sign-up successful!"),
+                                ),
+                              );
+                            }
+                          },
+                          child: const Text(
+                            "Sign Up",
+                            style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),
                       ),
+                      const SizedBox(height: 20),
+
+                      RichText(
+                        text: TextSpan(
+                          text: "Already have an account? ",
+                          style: bodyText1,
+                          children: [
+                            TextSpan(
+                              text: "Log In",
+                              style: bodyText1.copyWith(
+                                color: blue,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              recognizer:
+                                  TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const LoginScreen(),
+                                        ),
+                                      );
+                                    },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ],

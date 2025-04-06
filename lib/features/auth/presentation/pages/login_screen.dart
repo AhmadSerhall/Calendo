@@ -1,6 +1,9 @@
+import 'package:admin/core/constants/colors.dart';
 import 'package:admin/core/constants/constraints.dart';
 import 'package:admin/core/constants/text_styles.dart';
+import 'package:admin/core/keyboard/dismiss.dart';
 import 'package:admin/features/auth/presentation/components/custom_text_field.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sizer/sizer.dart';
@@ -35,9 +38,9 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF4F4F4),
+        backgroundColor: backgroundColor,
         elevation: 0,
         title: Text(
           "Welcome Back",
@@ -50,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen>
         ),
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => dismissKeyboard(context),
         child: SafeArea(
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: defaultPadding),
@@ -60,17 +63,11 @@ class _LoginScreenState extends State<LoginScreen>
               children: [
                 Column(
                   children: [
-                    const SizedBox(height: 30),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: SvgPicture.asset(
-                        'assets/svg/login1.svg',
-                        fit: BoxFit.cover,
-                        width: 75.w,
-                      ),
+                    const SizedBox(height: 50),
+                    SvgPicture.asset(
+                      'assets/svg/login.svg',
+                      fit: BoxFit.cover,
+                      width: 75.w,
                     ),
                     const SizedBox(height: 30),
                     Form(
@@ -181,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen>
                       height: 50,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2697FF),
+                          backgroundColor: blue,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -196,35 +193,37 @@ class _LoginScreenState extends State<LoginScreen>
                             );
                           }
                         },
-                        child: const Text(
+                        child: Text(
                           "Log In",
-                          style: TextStyle(fontSize: 18, color: Colors.white),
+                          style: headline3.copyWith(color: Colors.white),
                         ),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Don't have an account? "),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const SignUpScreen(),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "Sign Up",
-                            style: TextStyle(
-                              color: Color(0xFF2697FF),
+                    RichText(
+                      text: TextSpan(
+                        text: "Don't have an account? ",
+                        style: bodyText1,
+                        children: [
+                          TextSpan(
+                            text: "Sign Up",
+                            style: bodyText1.copyWith(
+                              color: blue,
                               fontWeight: FontWeight.bold,
                             ),
+                            recognizer:
+                                TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const SignUpScreen(),
+                                      ),
+                                    );
+                                  },
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 24),
                   ],

@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:admin/core/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'signup_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -41,13 +43,13 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/images/logo.png',
+            SvgPicture.asset(
+              'assets/svg/calendar.svg',
               height: 120,
               width: 120,
             ),
@@ -69,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen>
                   return LinearProgressIndicator(
                     value: _controller.value,
                     backgroundColor: Colors.grey.shade300,
-                    color: const Color(0xFF2697FF),
+                    color: blue,
                   );
                 },
               ),
