@@ -1,6 +1,6 @@
+import 'package:admin/features/auth/presentation/components/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
-import '../components/TextField/custom_text_field.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
