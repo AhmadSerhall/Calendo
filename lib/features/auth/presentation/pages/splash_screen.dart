@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:admin/core/constants/colors.dart';
 import 'package:admin/features/home/presentation/pages/home_screen.dart';
+import 'package:admin/features/nav/app_navigation.dart';
 import 'package:flexify/flexify.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -34,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen>
     final prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     if (isLoggedIn) {
-      Flexify.go(const HomeScreen());
+      Flexify.go(const AppNavigation());
     } else {
       Flexify.go(const SignUpScreen());
     }
