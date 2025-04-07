@@ -1,3 +1,4 @@
+import 'package:admin/core/constants/text_styles.dart';
 import 'package:flutter/material.dart';
 
 Future<void> showCustomMacOSAlert({
@@ -17,9 +18,7 @@ Future<void> showCustomMacOSAlert({
       final colorScheme = theme.colorScheme;
 
       return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         elevation: 8,
         child: ConstrainedBox(
           constraints: BoxConstraints(
@@ -33,19 +32,10 @@ Future<void> showCustomMacOSAlert({
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Title
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text(title, style: headline2),
                 const SizedBox(height: 12),
                 // Message
-                Text(
-                  message,
-                  style: const TextStyle(fontSize: 16),
-                ),
+                Text(message, style: bodyText1),
                 const SizedBox(height: 20),
                 // Button Row
                 Row(
@@ -56,12 +46,7 @@ Future<void> showCustomMacOSAlert({
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(
-                          color: colorScheme.inversePrimary,
-                        ),
-                      ),
+                      child: Text('Cancel', style: bodyText1),
                     ),
                     const SizedBox(width: 8),
                     // Confirm Button
@@ -70,12 +55,7 @@ Future<void> showCustomMacOSAlert({
                         Navigator.of(context).pop();
                         onConfirm();
                       },
-                      child: Text(
-                        'Confirm',
-                        style: TextStyle(
-                          color: colorScheme.inversePrimary,
-                        ),
-                      ),
+                      child: Text('Confirm', style: bodyText1),
                     ),
                   ],
                 ),

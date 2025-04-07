@@ -1,10 +1,18 @@
-import 'package:admin/core/constants/colors.dart';
-import 'package:admin/core/constants/constraints.dart';
-import 'package:admin/core/constants/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:admin/core/constants/colors.dart';
 
+// A single sheet for both "Add" and "Edit"
 class AddEventSheet extends StatefulWidget {
-  const AddEventSheet({super.key});
+  final bool isEdit; // false => "Create Event", true => "Edit Event"
+  final Map<String, String>? existingEvent;
+  final void Function(Map<String, String> eventData) onSave;
+
+  const AddEventSheet({
+    super.key,
+    required this.onSave,
+    this.isEdit = false,
+    this.existingEvent,
+  });
 
   @override
   State<AddEventSheet> createState() => _AddEventSheetState();
@@ -12,33 +20,73 @@ class AddEventSheet extends StatefulWidget {
 
 class _AddEventSheetState extends State<AddEventSheet> {
   final _formKey = GlobalKey<FormState>();
-  final _eventNameController = TextEditingController();
-  final _noteController = TextEditingController();
+
+  // Controllers
+  final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _noteController = TextEditingController();
 
   DateTime? _selectedDate;
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
-  bool _remindsMe = false;
+  bool _isPriority = false; // "Reminds me" or "Priority"
 
-  // Example categories
-  final List<String> _categories = ["Brainstorm", "Design", "Workout"];
+  @override
+  void initState() {
+    super.initState();
+    // If we're editing, populate fields
+    if (widget.isEdit && widget.existingEvent != null) {
+      final e = widget.existingEvent!;
+      _nameController.text = e["name"] ?? "";
+      _phoneController.text = e["phone"] ?? "";
+      _noteController.text = e["note"] ?? "";
+
+      // parse date
+      if (e["date"] != null) {
+        final parts = e["date"]!.split("-");
+        if (parts.length == 3) {
+          final y = int.parse(parts[0]);
+          final m = int.parse(parts[1]);
+          final d = int.parse(parts[2]);
+          _selectedDate = DateTime(y, m, d);
+        }
+      }
+      // parse start time
+      if (e["start"] != null) {
+        _startTime = _parseTimeOfDay(e["start"]!);
+      }
+      // parse end time
+      if (e["end"] != null) {
+        _endTime = _parseTimeOfDay(e["end"]!);
+      }
+      // parse priority
+      _isPriority = (e["priority"] == "true");
+    }
+  }
+
+  TimeOfDay _parseTimeOfDay(String timeStr) {
+    // "HH:mm"
+    final parts = timeStr.split(":");
+    final hh = int.parse(parts[0]);
+    final mm = int.parse(parts[1]);
+    return TimeOfDay(hour: hh, minute: mm);
+  }
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: now,
+      initialDate: _selectedDate ?? now,
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData(
             colorScheme: ColorScheme.light(
-              primary: blue, // Blue primary color for header, selection, etc.
-              onPrimary: Colors.white, // Text/icon color on primary color
-              surface: Colors.white, // White background for the picker
-              onSurface: Colors.black, // Text color on the background
+              primary: blue,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
             ),
             dialogBackgroundColor: Colors.white,
           ),
@@ -57,15 +105,15 @@ class _AddEventSheetState extends State<AddEventSheet> {
     final now = TimeOfDay.now();
     final picked = await showTimePicker(
       context: context,
-      initialTime: now,
+      initialTime: _startTime ?? now,
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData(
             colorScheme: ColorScheme.light(
-              primary: blue, // Blue as primary color (header, selection)
-              onPrimary: Colors.white, // Text color on primary
-              surface: Colors.white, // White background for the picker
-              onSurface: Colors.black, // Text color on the background
+              primary: blue,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
             ),
             dialogBackgroundColor: Colors.white,
           ),
@@ -84,7 +132,7 @@ class _AddEventSheetState extends State<AddEventSheet> {
     final now = TimeOfDay.now();
     final picked = await showTimePicker(
       context: context,
-      initialTime: now,
+      initialTime: _endTime ?? now,
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData(
@@ -109,7 +157,8 @@ class _AddEventSheetState extends State<AddEventSheet> {
 
   @override
   void dispose() {
-    _eventNameController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
     _noteController.dispose();
     super.dispose();
   }
@@ -118,42 +167,47 @@ class _AddEventSheetState extends State<AddEventSheet> {
   Widget build(BuildContext context) {
     final bottomInsets = MediaQuery.of(context).viewInsets.bottom;
     return Container(
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: const BorderRadius.only(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
       ),
       padding: EdgeInsets.only(
-        left: defaultPadding,
-        right: defaultPadding,
-        top: defaultPadding,
-        bottom: bottomInsets + defaultPadding,
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: bottomInsets + 16,
       ),
       child: Form(
         key: _formKey,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            spacing: 6,
             children: [
-              Text("Add New Event", style: headline2),
+              Text(
+                widget.isEdit ? "Edit Event" : "Add New Event",
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 16),
 
-              // Event name
+              // Name
               TextFormField(
-                controller: _eventNameController,
+                controller: _nameController,
                 decoration: InputDecoration(
+                  labelText: "Visitor's name*",
+                  filled: true,
+                  fillColor: const Color(0xFFF4F4F4),
+                  border: const OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: blue, width: 2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   floatingLabelStyle: TextStyle(color: blue),
-                  labelText: "Visitor's name*",
-                  filled: true,
-                  fillColor: Color(0xFFF4F4F4),
-                  border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -164,18 +218,19 @@ class _AddEventSheetState extends State<AddEventSheet> {
               ),
               const SizedBox(height: 12),
 
+              // Phone
               TextFormField(
                 controller: _phoneController,
                 decoration: InputDecoration(
+                  labelText: "Visitor's Phone*",
+                  filled: true,
+                  fillColor: const Color(0xFFF4F4F4),
+                  border: const OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: blue, width: 2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   floatingLabelStyle: TextStyle(color: blue),
-                  labelText: "Visitor's Phone*",
-                  filled: true,
-                  fillColor: Color(0xFFF4F4F4),
-                  border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -184,43 +239,43 @@ class _AddEventSheetState extends State<AddEventSheet> {
                   return null;
                 },
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
 
               // Note
               TextFormField(
                 controller: _noteController,
                 decoration: InputDecoration(
+                  labelText: "Type the note here...",
+                  filled: true,
+                  fillColor: const Color(0xFFF4F4F4),
+                  border: const OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: blue, width: 2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   floatingLabelStyle: TextStyle(color: blue),
-                  labelText: "Type the note here...",
-                  filled: true,
-                  fillColor: Color(0xFFF4F4F4),
-                  border: OutlineInputBorder(),
                 ),
                 maxLines: 2,
               ),
               const SizedBox(height: 12),
 
-              // Date
+              // Date / Start / End
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
                       readOnly: true,
                       decoration: InputDecoration(
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: blue, width: 2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        floatingLabelStyle: TextStyle(color: blue),
                         labelText: "Date",
                         filled: true,
                         fillColor: const Color(0xFFF4F4F4),
                         border: const OutlineInputBorder(),
                         suffixIcon: const Icon(Icons.calendar_month),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: blue, width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        floatingLabelStyle: TextStyle(color: blue),
                       ),
                       onTap: _pickDate,
                       controller: TextEditingController(
@@ -229,25 +284,31 @@ class _AddEventSheetState extends State<AddEventSheet> {
                                 ? ""
                                 : "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}",
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Date is required";
+                        }
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(width: 8),
 
-                  // Start Time
+                  // Start
                   Expanded(
                     child: TextFormField(
                       readOnly: true,
                       decoration: InputDecoration(
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: blue, width: 2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        floatingLabelStyle: TextStyle(color: blue),
                         labelText: "Start time",
                         filled: true,
                         fillColor: const Color(0xFFF4F4F4),
                         border: const OutlineInputBorder(),
                         suffixIcon: const Icon(Icons.access_time),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: blue, width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        floatingLabelStyle: TextStyle(color: blue),
                       ),
                       onTap: _pickStartTime,
                       controller: TextEditingController(
@@ -256,48 +317,59 @@ class _AddEventSheetState extends State<AddEventSheet> {
                                 ? ""
                                 : _startTime!.format(context),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Start time is required";
+                        }
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(width: 8),
 
-                  // End Time
+                  // End
                   Expanded(
                     child: TextFormField(
                       readOnly: true,
                       decoration: InputDecoration(
+                        labelText: "End time",
+                        filled: true,
+                        fillColor: const Color(0xFFF4F4F4),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: const Icon(Icons.access_time),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: blue, width: 2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         floatingLabelStyle: TextStyle(color: blue),
-                        labelText: "End time",
-                        filled: true,
-                        focusColor: blue,
-                        fillColor: const Color(0xFFF4F4F4),
-                        border: const OutlineInputBorder(),
-                        suffixIcon: const Icon(Icons.access_time),
                       ),
                       onTap: _pickEndTime,
                       controller: TextEditingController(
                         text: _endTime == null ? "" : _endTime!.format(context),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "End time is required";
+                        }
+                        return null;
+                      },
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
 
-              // Reminds me
+              // Priority
               Row(
                 children: [
                   const Text("Priority Event", style: TextStyle(fontSize: 16)),
                   const Spacer(),
                   Switch(
-                    value: _remindsMe,
+                    value: _isPriority,
                     activeColor: blue,
                     onChanged: (val) {
                       setState(() {
-                        _remindsMe = val;
+                        _isPriority = val;
                       });
                     },
                   ),
@@ -305,11 +377,11 @@ class _AddEventSheetState extends State<AddEventSheet> {
               ),
               const SizedBox(height: 12),
 
-              // Create Event button
+              // Create / Edit button
               Container(
                 width: double.infinity,
                 height: 50,
-                margin: EdgeInsets.only(bottom: 24),
+                margin: const EdgeInsets.only(bottom: 24),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: blue,
@@ -319,13 +391,53 @@ class _AddEventSheetState extends State<AddEventSheet> {
                   ),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      // TODO: Create the event
+                      // Build event map
+                      final newEvent = <String, String>{
+                        "name": _nameController.text,
+                        "phone": _phoneController.text,
+                        "note": _noteController.text,
+                        "priority": _isPriority ? "true" : "false",
+                      };
+
+                      // date
+                      if (_selectedDate != null) {
+                        newEvent["date"] =
+                            "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}";
+                      }
+
+                      // times
+                      if (_startTime != null) {
+                        final hour = _startTime!.hour.toString().padLeft(
+                          2,
+                          '0',
+                        ); // e.g. "20"
+                        final minute = _startTime!.minute.toString().padLeft(
+                          2,
+                          '0',
+                        ); // e.g. "00"
+                        newEvent["start"] = "$hour:$minute"; // "20:00"
+                      }
+
+                      if (_endTime != null) {
+                        final hour = _endTime!.hour.toString().padLeft(2, '0');
+                        final minute = _endTime!.minute.toString().padLeft(
+                          2,
+                          '0',
+                        );
+                        newEvent["end"] = "$hour:$minute";
+                      }
+
+                      // If priority => color= "red" else "blue" or user can pick
+                      newEvent["color"] = _isPriority ? "red" : "blue";
+
+                      // Done
+                      widget.onSave(newEvent);
                       Navigator.pop(context);
                     }
                   },
-                  child: const Text(
-                    "Create Event",
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  child: Text(
+                    widget.isEdit ? "Edit Event" : "Create Event",
+                    style: const TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
               ),
