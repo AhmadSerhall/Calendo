@@ -2,9 +2,12 @@ import 'package:admin/core/constants/colors.dart';
 import 'package:admin/core/constants/constraints.dart';
 import 'package:admin/core/constants/text_styles.dart';
 import 'package:admin/core/keyboard/dismiss.dart';
+import 'package:admin/features/auth/data/auth.dart';
+import 'package:admin/features/auth/data/providers/auth_providers.dart';
 import 'package:admin/features/auth/presentation/components/custom_text_field.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sizer/sizer.dart';
 import 'signup_screen.dart';
@@ -87,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen>
                             controller: _passwordController,
                           ),
                           const SizedBox(height: 24),
-                          Row(
+                          /* Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             spacing: 16,
@@ -164,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                               ),
                             ],
-                          ),
+                          ), */
                         ],
                       ),
                     ),
@@ -173,31 +176,49 @@ class _LoginScreenState extends State<LoginScreen>
                 Column(
                   children: [
                     const SizedBox(height: 30),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const HomeScreen(),
+                    Consumer(
+                      builder: (context, ref, child) {
+                        bool watching = ref.watch(isLoginLoadingProvider);
+                        return SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: blue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                            );
-                          }
-                        },
-                        child: Text(
-                          "Log In",
-                          style: headline3.copyWith(color: Colors.white),
-                        ),
-                      ),
+                            ),
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                ref
+                                    .read(isLoginLoadingProvider.notifier)
+                                    .state = true;
+                                await Future.delayed(
+                                  const Duration(seconds: 2),
+                                );
+                                await AuthService().signInWithEmailAndPassword(
+                                  _emailController.text,
+                                  _passwordController.text,
+                                  context,
+                                );
+                              }
+                            },
+                            child:
+                                watching
+                                    ? const CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    )
+                                    : Text(
+                                      "Log In",
+                                      style: headline3.copyWith(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 20),
                     RichText(

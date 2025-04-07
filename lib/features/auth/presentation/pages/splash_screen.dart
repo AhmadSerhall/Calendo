@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:admin/core/constants/colors.dart';
+import 'package:admin/features/home/presentation/pages/home_screen.dart';
+import 'package:flexify/flexify.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'signup_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -18,20 +21,23 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-
-    // Animate loading bar
     _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..forward();
+        vsync: this,
+        duration: const Duration(seconds: 3),
+      )
+      ..forward().then((_) {
+        navigate();
+      });
+  }
 
-    // Navigate after 3 seconds
-    Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const SignUpScreen()),
-      );
-    });
+  navigate() async {
+    final prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    if (isLoggedIn) {
+      Flexify.go(const HomeScreen());
+    } else {
+      Flexify.go(const SignUpScreen());
+    }
   }
 
   @override

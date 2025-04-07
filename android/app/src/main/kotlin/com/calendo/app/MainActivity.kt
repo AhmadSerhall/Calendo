@@ -1,4 +1,4 @@
-package com.example.calendo
+package com.calendo.app
 
 import io.flutter.embedding.android.FlutterActivity
 

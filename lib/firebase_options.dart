@@ -17,7 +17,10 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -25,9 +28,15 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -40,19 +49,9 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAHenap4vu8rYMXPbQhrJ1KkQSJRqFv1zY',
-    appId: '1:640478539531:web:37c03fa260e01641eabc0e',
-    messagingSenderId: '640478539531',
-    projectId: 'calendo-2e345',
-    authDomain: 'calendo-2e345.firebaseapp.com',
-    storageBucket: 'calendo-2e345.firebasestorage.app',
-    measurementId: 'G-X6EWW5G9EZ',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCYtlRohic2_GpwydVUnowYpwWwSil5YL8',
-    appId: '1:640478539531:android:94472b9859a935f0eabc0e',
+    appId: '1:640478539531:android:acb9de4ae2b681d2eabc0e',
     messagingSenderId: '640478539531',
     projectId: 'calendo-2e345',
     storageBucket: 'calendo-2e345.firebasestorage.app',
@@ -60,29 +59,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCwsGup9TrWSRCkImzy6VOZLYvXsbzr8C4',
-    appId: '1:640478539531:ios:57292067c871412eeabc0e',
+    appId: '1:640478539531:ios:2d14dc72dd13afe5eabc0e',
     messagingSenderId: '640478539531',
     projectId: 'calendo-2e345',
     storageBucket: 'calendo-2e345.firebasestorage.app',
-    iosBundleId: 'com.example.calendarApp',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCwsGup9TrWSRCkImzy6VOZLYvXsbzr8C4',
-    appId: '1:640478539531:ios:57292067c871412eeabc0e',
-    messagingSenderId: '640478539531',
-    projectId: 'calendo-2e345',
-    storageBucket: 'calendo-2e345.firebasestorage.app',
-    iosBundleId: 'com.example.calendarApp',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAHenap4vu8rYMXPbQhrJ1KkQSJRqFv1zY',
-    appId: '1:640478539531:web:758ab09b750362d9eabc0e',
-    messagingSenderId: '640478539531',
-    projectId: 'calendo-2e345',
-    authDomain: 'calendo-2e345.firebaseapp.com',
-    storageBucket: 'calendo-2e345.firebasestorage.app',
-    measurementId: 'G-HFXV39RMED',
+    iosClientId: '640478539531-kcvofeh5bbh394vr93ord2eer2gdahpe.apps.googleusercontent.com',
+    iosBundleId: 'com.calendo.app',
   );
 }
